@@ -1,0 +1,160 @@
+#include <iostream>
+using namespace std;
+
+struct node{
+    node* left = NULL;
+    node* right = NULL;
+    int key;
+    int depth = 0;
+    };
+
+class avl{
+    public:
+    node* root;
+
+    avl(): root (NULL){}
+
+    node* easyfind(int k){
+        node* temp = root;
+        while (temp -> left != NULL || temp -> right != NULL){
+            if (temp -> left || temp -> right){
+                if (k < temp -> key){
+                    if (temp -> left){
+                        temp = temp -> left;
+                    }
+                    else return temp;
+                }
+                if(k > temp -> key){
+                    if(temp -> right){
+                        temp = temp -> right;
+                    }
+                    else return temp;
+                }
+            }
+            else
+                break;
+        }
+        return temp;
+    }
+
+
+
+
+
+
+    void push(int k){
+        if (root == NULL){
+            root = new node;
+            root -> key = k;
+            root -> depth = 0;
+        }
+        else{
+            node* p = easyfind(k);
+            if (k < p -> key){
+                p -> left = new node;
+                p -> left -> key = k;
+                p -> left -> depth = 0;
+            }
+            else{
+                p -> right = new node;
+                p -> right -> key = k;
+                p -> right -> depth = 0;
+            }
+        balance(p);
+        }
+
+    }
+
+    int fixdepth(node* p, int depr, int depl){
+    if(p -> right)
+        fixdepth (p -> right, depr + 1, depl);
+    if(p -> left)
+        fixdepth (p -> left, depr, depl + 1);
+    int h;
+    if (p -> left == NULL && p -> right == NULL){
+        h = max (depr, depl);
+        }
+    return h ;
+    }
+
+    int depth(node* p){
+        if (p) return p -> depth;
+        else return 0;
+    }
+
+    int bfactor(node* p){
+	return depth(p -> right) - depth(p -> left);
+    }
+
+    node* rotateright(node* p) // правый поворот вокруг p
+{
+	node* q = p->left;
+	p->left = q->right;
+	q->right = p;
+	fixdepth(p,0,0);
+	fixdepth(q,0,0);
+	return q;
+}
+
+node* rotateleft(node* q)
+{
+	node* p = q->right;
+	q->right = p->left;
+	p->left = q;
+	fixdepth(q,0,0);
+	fixdepth(p,0,0);
+	return p;
+}
+
+void balance(node* p){
+
+	cout << "  p = " << p -> key << "  fdddd: " << fixdepth(p,0,0);
+	if( bfactor(p) == 2 ){
+		if( bfactor(p -> right) < 0 )
+			p -> right = rotateright(p -> right);
+		rotateleft(p);
+	}
+	if( bfactor(p)==-2 )
+	{
+		if( bfactor(p->left) > 0  )
+			p -> left = rotateleft(p -> left);
+		rotateright(p);
+	}
+}
+
+
+    node* print(node* temp){
+        if (temp == root)
+            cout << "root: " << temp -> key << endl;
+        else
+            cout << temp -> key << endl;
+        if( temp -> left ){
+            cout << "left: ";
+            print(temp -> left);
+        }
+        if( temp -> right ){
+            cout << "right: ";
+            print(temp -> right);
+        }
+        return 0;
+    }
+
+
+    int findmin(){
+        node* p = root;
+        while (p -> left)
+            p = p -> left;
+        return p -> key;
+    }
+
+};
+
+    int main(){
+        avl A;
+        A.push(5);
+        A.push(3);
+        A.push(1);
+        A.push(2);
+        A.print(A.root);
+        return 0;
+    }
